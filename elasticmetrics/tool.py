@@ -6,9 +6,9 @@ from elasticmetrics import __version__
 from elasticmetrics.collectors import ElasticSearchCollector
 
 
-EX_OK = 0
-EX_SOFTWARE = 70
-EX_TEMPFAIL = 75
+EX_OK = getattr(os, 'EX_OK', 0)
+EX_SOFTWARE = getattr(os, 'EX_SOFTWARE', 70)
+EX_TEMPFAIL = getattr(os, 'EX_TEMPFAIL', 75)
 
 logger = getLogger(__name__)
 
