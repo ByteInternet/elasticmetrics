@@ -28,6 +28,7 @@ def parse_args(args=None):
     parser.add_argument('--insecure', action='store_true',
                         help='perform insecure SSL connections, skip certificate verification')
     parser.add_argument('--verbose', action='store_true', help='more output'),
+    parser.add_argument('--quiet', action='store_true', help='less output (overrides verbose)'),
     parser.add_argument('--version', action='version', version=__version__)
     return parser.parse_args(args)
 
@@ -37,8 +38,8 @@ def _ensure_logging_handler(logger):
         logger.addHandler(NullHandler())
 
 
-def config_loggers(verbose=False):
-    logger.setLevel(DEBUG)
+def config_loggers(quiet=False, verbose=False):
+    logger.setLevel(ERROR if quiet else DEBUG)
     stdout_handler = StreamHandler(sys.stdout)
     stdout_handler.setFormatter(Formatter('%(levelname)s: %(message)s'))
     stdout_handler.setLevel(DEBUG if verbose else INFO)
@@ -65,7 +66,7 @@ def create_es_collector(opts):
 def main(args=None):
     try:
         opts = parse_args(args)
-        config_loggers(opts.verbose)
+        config_loggers(opts.quiet, opts.verbose)
         es_collector = create_es_collector(opts)
         logger.debug('collecting cluster health info')
         print(es_collector.cluster_health())
