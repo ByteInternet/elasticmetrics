@@ -46,6 +46,17 @@ class HttpClient(object):
         else:
             self._ssl_context = None
 
+    def ssl_no_cert_verify(self):
+        """Disable SSL certificate verification.
+
+        Note: This results to insecure connections, and better be avoided in production.
+        This call mutates the client's SSLContext, and any request sent after
+        calling this method, will be insecure.
+        """
+        if self._ssl_context:
+            self._ssl_context.check_hostname = False
+            self._ssl_context.verify_mode = ssl.CERT_NONE
+
     def _urlopen(self, request):
         """Send a request the response file like object (urllib2 style)
         :param urllib2.Request request: the request

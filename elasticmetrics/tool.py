@@ -1,6 +1,6 @@
 import sys
 import os
-from logging import getLogger, DEBUG, INFO, Formatter, StreamHandler, NullHandler
+from logging import getLogger, DEBUG, INFO, ERROR, Formatter, StreamHandler, NullHandler
 from argparse import ArgumentParser
 from elasticmetrics import __version__
 from elasticmetrics.collectors import ElasticSearchCollector
@@ -23,6 +23,10 @@ def parse_args(args=None):
                         help='ElasticSearch username')
     parser.add_argument('--password', '-p', default=os.environ.get('ELASTICSEARCH_PASSWORD'),
                         help='ElasticSearch password')
+    parser.add_argument('--ssl', action='store_true',
+                        help='use SSL (when applicable)')
+    parser.add_argument('--insecure', action='store_true',
+                        help='perform insecure SSL connections, skip certificate verification')
     parser.add_argument('--verbose', action='store_true', help='more output'),
     parser.add_argument('--version', action='version', version=__version__)
     return parser.parse_args(args)
@@ -36,21 +40,33 @@ def _ensure_logging_handler(logger):
 def config_loggers(verbose=False):
     logger.setLevel(DEBUG)
     stdout_handler = StreamHandler(sys.stdout)
-    stdout_handler.setFormatter(Formatter('%(message)s'))
+    stdout_handler.setFormatter(Formatter('%(levelname)s: %(message)s'))
     stdout_handler.setLevel(DEBUG if verbose else INFO)
     logger.addHandler(stdout_handler)
     # silent warnings like "No handlers could be found for logger ..."
     _ensure_logging_handler(getLogger('elasticmetrics.collectors'))
 
 
+def create_es_collector(opts):
+    """Create an ElasticSearchCollector configured by options provided by
+    parsing arguments
+    """
+    es_collector = ElasticSearchCollector(
+            opts.host, port=opts.port,
+            user=opts.user, password=opts.password,
+            scheme='https' if opts.ssl else 'http'
+            )
+    if opts.ssl and opts.insecure:
+        es_collector.ssl_no_cert_verify()
+        logger.warning('disabled SSL certificate verification. transactions are insecure')
+    return es_collector
+
+
 def main(args=None):
     try:
         opts = parse_args(args)
-        config_loggers(verbose=opts.verbose)
-        es_collector = ElasticSearchCollector(
-                opts.host, port=opts.port,
-                user=opts.user, password=opts.password
-                )
+        config_loggers(opts.verbose)
+        es_collector = create_es_collector(opts)
         logger.debug('collecting cluster health info')
         print(es_collector.cluster_health())
         return EX_OK

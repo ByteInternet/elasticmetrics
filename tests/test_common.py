@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ssl import SSLContext
+import ssl
 from elasticmetrics.common import HttpClient
 from elasticmetrics.exceptions import ElasticMetricsError
 from . import BaseTestCase
@@ -32,7 +32,7 @@ class TestHttpClient(BaseTestCase):
         self.assertEqual(http_client.scheme, 'https')
         self.assertIsInstance(http_client.headers, dict)
         self.assertIn(http_client.headers['CustomHeader'], 'header_value')
-        self.assertIsInstance(http_client.ssl_context, SSLContext)
+        self.assertIsInstance(http_client.ssl_context, ssl.SSLContext)
 
     def test_http_client_init_sets_authorization_header_from_user_password(self):
         http_client = HttpClient(
@@ -70,3 +70,17 @@ class TestHttpClient(BaseTestCase):
         headers = http_client.headers
         headers['NewHeader'] = 'new value'
         self.assertEqual(http_client.headers, {})
+
+    def test_http_client_ssl_context_is_mutable(self):
+        http_client = HttpClient('www.example.org', scheme='https')
+        ssl_context = http_client.ssl_context
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_OPTIONAL
+        self.assertEqual(http_client.ssl_context.verify_mode, ssl.CERT_OPTIONAL)
+        self.assertFalse(http_client.ssl_context.check_hostname)
+
+    def test_http_client_ssl_no_cert_verify_disables_ssl_certificate__verification(self):
+        http_client = HttpClient('www.example.org', scheme='https')
+        http_client.ssl_no_cert_verify()
+        self.assertFalse(http_client.ssl_context.check_hostname)
+        self.assertEqual(http_client.ssl_context.verify_mode, ssl.CERT_NONE)
