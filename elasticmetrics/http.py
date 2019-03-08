@@ -1,7 +1,7 @@
 """
-elasticmetrics.common
-~~~~~~~~~~~~~~~~~~~~~
-common utilities
+elasticmetrics.http
+~~~~~~~~~~~~~~~~~~~
+common functionality over HTTP
 """
 import ssl
 import json

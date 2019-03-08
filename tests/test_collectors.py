@@ -1,5 +1,5 @@
 from elasticmetrics.collectors import ElasticSearchCollector
-from elasticmetrics.common import HttpClient
+from elasticmetrics.http import HttpClient
 from . import BaseTestCase
 
 

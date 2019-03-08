@@ -1,5 +1,5 @@
 from logging import getLogger
-from .common import HttpClient
+from .http import HttpClient
 
 
 PATH_CLUSTER_HEALTH = '_cluster/health'

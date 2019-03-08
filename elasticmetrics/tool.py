@@ -9,12 +9,14 @@ from elasticmetrics.collectors import ElasticSearchCollector
 EX_OK = getattr(os, 'EX_OK', 0)
 EX_SOFTWARE = getattr(os, 'EX_SOFTWARE', 70)
 EX_TEMPFAIL = getattr(os, 'EX_TEMPFAIL', 75)
+PROG_NAME = 'elasticmetrics.tools'
 
-logger = getLogger(__name__)
+logger = getLogger(PROG_NAME)
 
 
 def parse_args(args=None):
     parser = ArgumentParser(
+                prog=PROG_NAME,
                 description='collect and report metrics from Elastic stack'
             )
     parser.add_argument('--host', default='localhost', help='ElasticSearch server hostname')
@@ -33,20 +35,27 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
-def _ensure_logging_handler(logger):
-    if not logger.handlers:
-        logger.addHandler(NullHandler())
+def _ensure_logging_handler(logger, handler=None):
+    if logger.handlers:
+        return
+    logger.addHandler(handler or NullHandler())
 
 
 def config_loggers(quiet=False, verbose=False):
-    logger.setLevel(ERROR if quiet else DEBUG)
+    log_level = ERROR if quiet else DEBUG
+    logger.setLevel(log_level)
     stdout_handler = StreamHandler(sys.stdout)
-    stdout_handler.setFormatter(Formatter('%(levelname)s: %(message)s'))
+    stdout_handler.setFormatter(Formatter('[%(levelname)s] %(name)s: %(message)s'))
     stdout_handler.setLevel(DEBUG if verbose else INFO)
     logger.addHandler(stdout_handler)
-    # silent warnings like "No handlers could be found for logger ..."
-    _ensure_logging_handler(getLogger('elasticmetrics.collectors'))
-    _ensure_logging_handler(getLogger('elasticmetrics.common'))
+
+    # silent warnings like "No handlers could be found for logger ..." for loggers
+    # from other modules
+    sublogger_handler = stdout_handler if verbose else None
+    subloggers = [getLogger('elasticmetrics.collectors'), getLogger('elasticmetrics.http')]
+    for sublogger in subloggers:
+        sublogger.setLevel(log_level)
+        _ensure_logging_handler(sublogger, sublogger_handler)
 
 
 def create_es_collector(opts):

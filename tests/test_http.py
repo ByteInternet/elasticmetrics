@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import ssl
-from elasticmetrics.common import HttpClient
+from elasticmetrics.http import HttpClient
 from elasticmetrics.exceptions import ElasticMetricsError
 from . import BaseTestCase
 
