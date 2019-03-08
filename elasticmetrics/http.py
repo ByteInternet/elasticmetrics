@@ -96,7 +96,7 @@ class HttpClient(object):
         try:
             logger.debug('requesting URL "{}"'.format(url))
             with closing(self._urlopen(request)) as response:
-                logger.debug('URL "{}" response code "{}". decoding JSON'.format(response.getcode()))
+                logger.debug('URL "{}" response code "{}". decoding JSON'.format(url, response.getcode()))
                 return json.load(response)
         except IOError as err:
             logger.error('failed to request URL "{}": {}'.format(url, err))

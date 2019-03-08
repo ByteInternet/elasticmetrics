@@ -9,7 +9,7 @@ from elasticmetrics.collectors import ElasticSearchCollector
 EX_OK = getattr(os, 'EX_OK', 0)
 EX_SOFTWARE = getattr(os, 'EX_SOFTWARE', 70)
 EX_TEMPFAIL = getattr(os, 'EX_TEMPFAIL', 75)
-PROG_NAME = 'elasticmetrics.tools'
+PROG_NAME = 'elasticmetrics.tool'
 
 logger = getLogger(PROG_NAME)
 
@@ -44,14 +44,14 @@ def _ensure_logging_handler(logger, handler=None):
 def config_loggers(quiet=False, verbose=False):
     log_level = ERROR if quiet else DEBUG
     logger.setLevel(log_level)
-    stdout_handler = StreamHandler(sys.stdout)
-    stdout_handler.setFormatter(Formatter('[%(levelname)s] %(name)s: %(message)s'))
-    stdout_handler.setLevel(DEBUG if verbose else INFO)
-    logger.addHandler(stdout_handler)
+    stream_handler = StreamHandler(sys.stderr)
+    stream_handler.setFormatter(Formatter('[%(levelname)s] %(name)s: %(message)s'))
+    stream_handler.setLevel(DEBUG if verbose else INFO)
+    logger.addHandler(stream_handler)
 
     # silent warnings like "No handlers could be found for logger ..." for loggers
     # from other modules
-    sublogger_handler = stdout_handler if verbose else None
+    sublogger_handler = stream_handler if verbose else None
     subloggers = [getLogger('elasticmetrics.collectors'), getLogger('elasticmetrics.http')]
     for sublogger in subloggers:
         sublogger.setLevel(log_level)
@@ -80,7 +80,7 @@ def main(args=None):
         opts = parse_args(args)
         config_loggers(opts.quiet, opts.verbose)
         es_collector = create_es_collector(opts)
-        logger.debug('collecting cluster health info')
+        logger.debug('collecting ElasticSearch metrics')
         print(es_collector.cluster_health())
         return EX_OK
     except KeyboardInterrupt:
