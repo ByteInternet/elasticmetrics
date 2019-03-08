@@ -11,3 +11,7 @@ class TestElasticSearchCollector(BaseTestCase):
     def test_elasticsearch_collector_init_uses_es_port_by_default(self):
         es_collector = ElasticSearchCollector('localhost')
         self.assertEqual(es_collector.port, 9200)
+
+    def test_elasticsearch_collector_init_uses_es_port_by_default_for_https(self):
+        es_collector = ElasticSearchCollector('localhost', scheme='https')
+        self.assertEqual(es_collector.port, 9200)

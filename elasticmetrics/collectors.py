@@ -24,7 +24,8 @@ class ElasticSearchCollector(HttpClient):
     :param dict headers: dictionary of additional headers
     """
 
-    default_port = 9200
+    default_port_http = 9200
+    default_port_https = 9200
 
     def _request_get(self, path):
         """Send a GET request to the URL path and return the decoded response

@@ -52,15 +52,17 @@ def create_es_collector(opts):
     """Create an ElasticSearchCollector configured by options provided by
     parsing arguments
     """
-    es_collector = ElasticSearchCollector(
+    ssl_context = {}
+    if opts.insecure:
+        ssl_context['no_cert_verify'] = True
+        logger.warning('disabled SSL certificate verification. requests are insecure')
+
+    return ElasticSearchCollector(
             opts.host, port=opts.port,
             user=opts.user, password=opts.password,
-            scheme='https' if opts.ssl else 'http'
+            scheme='https' if opts.ssl else 'http',
+            ssl_context=ssl_context
             )
-    if opts.ssl and opts.insecure:
-        es_collector.ssl_no_cert_verify()
-        logger.warning('disabled SSL certificate verification. transactions are insecure')
-    return es_collector
 
 
 def main(args=None):
