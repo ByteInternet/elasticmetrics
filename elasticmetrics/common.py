@@ -4,9 +4,15 @@ elasticmetrics.common
 common utilities
 """
 import ssl
+import json
+from logging import getLogger
+from contextlib import closing
 from base64 import b64encode
 from .pystdlib.urllib_request import urlopen, Request
-from .exceptions import ElasticMetricsError
+from .exceptions import ElasticMetricsError, ElasticMetricsRequestError
+
+
+logger = getLogger(__name__)
 
 
 class HttpClient(object):
@@ -77,6 +83,29 @@ class HttpClient(object):
         """
         url = '{}://{}:{}/{}'.format(self._scheme, self._host, self._port, path)
         return Request(url, headers=self._headers)
+
+    def _get_json(self, path):
+        """Send a GET request to the URL path, expecting a JSON response.
+        Returns the decoded data from response.
+
+        :param str path: the URL path that responds with JSON
+        :raise ElasticMetricsRequestError
+        """
+        request = self._create_request(path)
+        url = request.get_full_url()
+        try:
+            logger.debug('requesting URL "{}"'.format(url))
+            with closing(self._urlopen(request)) as response:
+                logger.debug('URL "{}" response code "{}". decoding JSON'.format(response.getcode()))
+                return json.load(response)
+        except IOError as err:
+            logger.error('failed to request URL "{}": {}'.format(url, err))
+            raise ElasticMetricsRequestError('request error to URL "{}": {}'.format(url, err))
+        except ValueError as err:
+            logger.error('invalid JSON response from "{}": {}'.format(url, err))
+            raise ElasticMetricsRequestError(
+                      'invalid JSON response from "{}": {}'.format(url, err)
+                  )
 
     @property
     def host(self):

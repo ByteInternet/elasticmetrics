@@ -46,6 +46,7 @@ def config_loggers(quiet=False, verbose=False):
     logger.addHandler(stdout_handler)
     # silent warnings like "No handlers could be found for logger ..."
     _ensure_logging_handler(getLogger('elasticmetrics.collectors'))
+    _ensure_logging_handler(getLogger('elasticmetrics.common'))
 
 
 def create_es_collector(opts):
