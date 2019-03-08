@@ -7,9 +7,12 @@ from elasticmetrics.collectors import ElasticSearchCollector
 
 
 EX_OK = getattr(os, 'EX_OK', 0)
+EX_DATAERR = getattr(os, 'EX_DATAERR', 65)
 EX_SOFTWARE = getattr(os, 'EX_SOFTWARE', 70)
 EX_TEMPFAIL = getattr(os, 'EX_TEMPFAIL', 75)
+
 PROG_NAME = 'elasticmetrics.tool'
+COLLECT_TARGETS = ['cluster_health', 'cluster_stats', 'cluster_tasks', 'node_stats']
 
 logger = getLogger(PROG_NAME)
 
@@ -31,6 +34,9 @@ def parse_args(args=None):
                         help='perform insecure SSL connections, skip certificate verification')
     parser.add_argument('--verbose', action='store_true', help='more output'),
     parser.add_argument('--quiet', '-q', action='store_true', help='less output (overrides verbose)'),
+    parser.add_argument('--collect', default='cluster_health,cluster_stats,cluster_tasks,node_stats',
+                        help='comma separated list of targets to collect: {}. Default is all'.format(
+                            ','.join(COLLECT_TARGETS))),
     parser.add_argument('--version', action='version', version=__version__)
     return parser.parse_args(args)
 
@@ -79,9 +85,22 @@ def main(args=None):
     try:
         opts = parse_args(args)
         config_loggers(opts.quiet, opts.verbose)
+        targets = {key: True for key in [word.strip().lower() for word in opts.collect.split(',')]}
+        for target in targets:
+            if target not in COLLECT_TARGETS:
+                logger.error("invalid argument to collect: {}".format(target))
+                return EX_DATAERR
+
         es_collector = create_es_collector(opts)
         logger.debug('collecting ElasticSearch metrics')
-        print(es_collector.cluster_health())
+        if 'cluster_health' in targets:
+            print(es_collector.cluster_health())
+        if 'cluster_stats' in targets:
+            print(es_collector.cluster_stats())
+        if 'cluster_tasks' in targets:
+            print(es_collector.cluster_pending_tasks())
+        if 'node_stats' in targets:
+            print(es_collector.node_stats())
         return EX_OK
     except KeyboardInterrupt:
         return EX_TEMPFAIL
