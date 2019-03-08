@@ -30,7 +30,7 @@ def parse_args(args=None):
     parser.add_argument('--insecure', action='store_true',
                         help='perform insecure SSL connections, skip certificate verification')
     parser.add_argument('--verbose', action='store_true', help='more output'),
-    parser.add_argument('--quiet', action='store_true', help='less output (overrides verbose)'),
+    parser.add_argument('--quiet', '-q', action='store_true', help='less output (overrides verbose)'),
     parser.add_argument('--version', action='version', version=__version__)
     return parser.parse_args(args)
 
