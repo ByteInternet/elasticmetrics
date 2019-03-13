@@ -85,7 +85,7 @@ def main(args=None):
     try:
         opts = parse_args(args)
         config_loggers(opts.quiet, opts.verbose)
-        targets = {key: True for key in [word.strip().lower() for word in opts.collect.split(',')]}
+        targets = set([word.strip().lower() for word in opts.collect.split(',')])
         for target in targets:
             if target not in COLLECT_TARGETS:
                 logger.error("invalid argument to collect: {}".format(target))
