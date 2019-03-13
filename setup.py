@@ -48,7 +48,7 @@ setup_params = dict(
     zip_safe=True
 )
 
-setup_params["extras_require"] = {"dev": ["pytest", "mock"]}
+setup_params["extras_require"] = {"dev": ["pytest", "mock", "pycodestyle"]}
 
 
 if __name__ == "__main__":
