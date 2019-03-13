@@ -37,7 +37,7 @@ CLI Tool
 
 .. code-block:: bash
 
-    # python -m elasticmetrics.tool --help
+    $ python -m elasticmetrics.tool --help
 
 
 Elastic credentials can be passed as arguments, or set as environment variables.
@@ -47,9 +47,9 @@ over HTTPS, and only collect node stats, and reads access credentials from envir
 
 .. code-block:: bash
 
-    # export ELASTICSEARCH_USER="someuser"
-    # export ELASTICSEARCH_PASSWORD="someuser"
-    # python -m elasticmetrics.tool --ssl --quiet --collect node_stats
+    $ export ELASTICSEARCH_USER="someuser"
+    $ export ELASTICSEARCH_PASSWORD="somepassword"
+    $ python -m elasticmetrics.tool --ssl --quiet --collect node_stats
 
 
 
