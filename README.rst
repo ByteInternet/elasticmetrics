@@ -4,6 +4,10 @@ Elastic Metrics
 
 Collect performance metrics from ElasticSearch.
 
+`elasticmetrics` is a Python library, designed to be used in different contexts and easy
+to integrate with other tools. Each step of data collection, transformation and
+reporting is defined in a separate reusable module.
+
 
 Installation
 ------------
@@ -16,12 +20,37 @@ Installation
 The only dependencies are Python 2.7+ and setuptools.
 
 However on development (and test) environment
-`pytest <https://pypi.org/project/pytest/>`_ and `mock <https://pypi.org/project/mock>`_ are required.
+`pytest <https://pypi.org/project/pytest/>`_, `mock <https://pypi.org/project/mock>`_
+and `pycodestyle <https://pypi.org/project/pycodestyle/>`_ are required.
+
 
 .. code-block:: bash
 
     # on dev/test env
     $ pip install -r requirements/dev.txt
+
+
+CLI Tool
+--------
+`elasticmetrics.tool` is a CLI program that exposes some of the functionlaty of the library. It'll execute when imported:
+
+
+.. code-block:: bash
+
+    $ python -m elasticmetrics.tool --help
+
+
+Elastic credentials can be passed as arguments, or set as environment variables.
+The example below will connect to ElasticSearch listening on the default port on localhost
+over HTTPS, and only collect node stats, and reads access credentials from environment variables.
+
+
+.. code-block:: bash
+
+    $ export ELASTICSEARCH_USER="someuser"
+    $ export ELASTICSEARCH_PASSWORD="somepassword"
+    $ python -m elasticmetrics.tool --ssl --quiet --collect node_stats
+
 
 
 Development
