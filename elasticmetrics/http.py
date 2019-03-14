@@ -97,7 +97,7 @@ class HttpClient(object):
             logger.debug('requesting URL "{}"'.format(url))
             with closing(self._urlopen(request)) as response:
                 logger.debug('URL "{}" response code "{}". decoding JSON'.format(url, response.getcode()))
-                return json.load(response)
+                return json.loads(response.read().decode('utf-8'))
         except IOError as err:
             logger.error('failed to request URL "{}": {}'.format(url, err))
             raise ElasticMetricsRequestError('request error to URL "{}": {}'.format(url, err))
