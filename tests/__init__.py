@@ -1,5 +1,11 @@
+import os
 import unittest
 import mock
+
+
+TESTS_PATH = os.path.abspath(os.path.dirname(__file__))
+ROOT_PATH = os.path.dirname(TESTS_PATH)
+FIXTURES_PATH = os.path.join(TESTS_PATH, 'fixtures')
 
 
 class BaseTestCase(unittest.TestCase):
