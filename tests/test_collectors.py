@@ -7,7 +7,7 @@ from . import BaseTestCase
 class TestElasticSearchCollector(BaseTestCase):
     def setUp(self):
         self.mock_urlopen = self.set_up_patch('elasticmetrics.http.urlopen')
-        self.mock_urlopen.return_value = self._mock_urlopen_response('{"_nodes": []}')
+        self.mock_urlopen.return_value = self._mock_urlopen_response(b'{"_nodes": []}')
 
     def test_elasitcsearch_collector_is_an_http_client_instance(self):
         es_collector = ElasticSearchCollector('localhost')
