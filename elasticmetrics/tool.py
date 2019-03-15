@@ -5,6 +5,7 @@ from logging import getLogger, DEBUG, INFO, ERROR, Formatter, StreamHandler, Nul
 from argparse import ArgumentParser
 from elasticmetrics import __version__
 from elasticmetrics.collectors import ElasticSearchCollector
+from elasticmetrics.metrics import cluster_health_metrics, node_performance_metrics
 
 
 EX_OK = getattr(os, 'EX_OK', 0)
@@ -13,7 +14,7 @@ EX_SOFTWARE = getattr(os, 'EX_SOFTWARE', 70)
 EX_TEMPFAIL = getattr(os, 'EX_TEMPFAIL', 75)
 
 PROG_NAME = 'elasticmetrics.tool'
-COLLECT_TARGETS = ['cluster_health', 'cluster_stats', 'cluster_tasks', 'node_stats']
+COLLECT_TARGETS = ['cluster_health', 'node_stats']
 
 logger = getLogger(PROG_NAME)
 
@@ -33,6 +34,7 @@ def parse_args(args=None):
                         help='use SSL (when applicable)')
     parser.add_argument('--insecure', action='store_true',
                         help='perform insecure SSL connections, skip certificate verification')
+    parser.add_argument('--raw-stats', action='store_true', help='output raw stats as returned from Elastic APIs'),
     parser.add_argument('--verbose', action='store_true', help='more output'),
     parser.add_argument('--quiet', '-q', action='store_true', help='less output (overrides verbose)'),
     parser.add_argument('--collect', default='cluster_health,node_stats',
@@ -92,17 +94,14 @@ def main(args=None):
                 logger.error("invalid argument to collect: {}".format(target))
                 return EX_DATAERR
 
-        es_collector = create_es_collector(opts)
-        logger.debug('collecting ElasticSearch metrics')
         output = {}
+
+        collector = create_es_collector(opts)
+        logger.debug('collecting ElasticSearch metrics')
         if 'cluster_health' in targets:
-            output['cluster_health'] = es_collector.cluster_health()
-        if 'cluster_stats' in targets:
-            output['cluster_stats'] = es_collector.cluster_stats()
-        if 'cluster_tasks' in targets:
-            output['cluster_tasks'] = es_collector.cluster_pending_tasks()
+            output['cluster_health'] = collector.cluster_health() if opts.raw_stats else cluster_health_metrics(collector.cluster_health())
         if 'node_stats' in targets:
-            output['node_stats'] = es_collector.node_stats()
+            output['node_stats'] = collector.node_stats() if opts.raw_stats else node_performance_metrics(collector.node_stats())
         print(json.dumps(output, indent=4))
         return EX_OK
     except KeyboardInterrupt:
