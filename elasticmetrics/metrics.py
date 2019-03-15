@@ -1,11 +1,38 @@
 from copy import copy
 
 
+STATUS_CODES = {
+    'green': 2,
+    'yellow': 4,
+    'red': 6,
+}
+
+
+def cluster_health_metrics(health_stats):
+    """From clustr health stats structure, returns a dictionary of cluster metrics.
+
+    :param dict health_stats: dict of cluster info as returned from _cluster/health API
+    :return dict: selection of cluster metrics (numeric values)
+    """
+    metrics = _dict_map(
+               int,
+               _available_keys(
+                   health_stats,
+                   ('active_primary_shards', 'active_shards', 'active_shards_percent_as_number',
+                    'delayed_unassigned_shards', 'initializing_shards', 'number_of_in_flight_fetch',
+                    'number_of_pending_tasks', 'relocating_shards', 'task_max_waiting_in_queue_millis')
+                )
+           )
+
+    metrics['status'] = STATUS_CODES.get(health_stats.get('status', '').lower().strip(), 0)
+    return metrics
+
+
 def node_performance_metrics(node_stats):
     """From node stats structure, returns a dictionary of node performance metrics.
 
     :param dict node_stats: dict of node stats, as returned by _nodes/*/stats API
-    :return dict: selection of node performance metrics
+    :return dict: selection of node performance metrics (numeric values)
     """
     metrics = {}
     node_id = list(node_stats['nodes'].keys()).pop()
@@ -105,3 +132,10 @@ def _available_keys(dict_, keys):
     :return: dict
     """
     return {k: dict_[k] for k in set(keys).intersection(dict_.keys())}
+
+
+def _dict_map(func, dict_):
+    """Return a dictionary of the results of applying the function
+    to the values of the provided dictionary, preserving the keys.
+    """
+    return {k: func(dict_[k]) for k in dict_}

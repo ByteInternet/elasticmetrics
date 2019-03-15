@@ -1,6 +1,6 @@
 import os
 import json
-from elasticmetrics.metrics import node_performance_metrics
+from elasticmetrics.metrics import node_performance_metrics, cluster_health_metrics
 from . import BaseTestCase, FIXTURES_PATH
 
 
@@ -8,6 +8,57 @@ FIXTURE_NODESTATS = os.path.join(FIXTURES_PATH, 'node_stats.json')
 
 with open(FIXTURE_NODESTATS, 'rt') as fh:
     MOCK_NODE_STATS = json.load(fh)
+
+
+MOCK_CLUSTER_HEALTH = {
+    "active_primary_shards": 3962,
+    "active_shards": 7927,
+    "active_shards_percent_as_number": 100.0,
+    "cluster_name": "es",
+    "delayed_unassigned_shards": 0,
+    "initializing_shards": 0,
+    "number_of_data_nodes": 8,
+    "number_of_in_flight_fetch": 0,
+    "number_of_nodes": 10,
+    "number_of_pending_tasks": 1,
+    "relocating_shards": 0,
+    "status": "green",
+    "task_max_waiting_in_queue_millis": 10,
+    "timed_out": False,
+    "unassigned_shards": 1
+}
+
+
+class TestClusterHealthMetrics(BaseTestCase):
+    def test_cluster_health_metrics_returns_integer_metrics(self):
+        metrics = cluster_health_metrics(MOCK_CLUSTER_HEALTH)
+        self.assertIsInstance(metrics, dict)
+        self.assertEqual(metrics['active_primary_shards'], 3962)
+        self.assertEqual(metrics['active_shards'], 7927)
+        self.assertEqual(metrics['active_shards_percent_as_number'], 100)
+        self.assertEqual(metrics['delayed_unassigned_shards'], 0)
+        self.assertEqual(metrics['initializing_shards'], 0)
+        self.assertEqual(metrics['number_of_in_flight_fetch'], 0)
+        self.assertEqual(metrics['number_of_pending_tasks'], 1)
+        self.assertEqual(metrics['relocating_shards'], 0)
+        self.assertEqual(metrics['task_max_waiting_in_queue_millis'], 10)
+        self.assertEqual(metrics['status'], 2)
+
+    def test_cluster_health_metrics_normalizes_status_value(self):
+        metrics = cluster_health_metrics({'status': 'GrEEn '})
+        self.assertEqual(metrics['status'], 2)
+
+    def test_cluster_health_metrics_returns_status_yellow(self):
+        metrics = cluster_health_metrics({'status': 'yellow'})
+        self.assertEqual(metrics['status'], 4)
+
+    def test_cluster_health_metrics_returns_status_red(self):
+        metrics = cluster_health_metrics({'status': 'red'})
+        self.assertEqual(metrics['status'], 6)
+
+    def test_cluster_health_metrics_normalizes_returns_status_0_if_missing(self):
+        metrics = cluster_health_metrics({})
+        self.assertEqual(metrics['status'], 0)
 
 
 class TestNodePerformanceMetrics(BaseTestCase):
