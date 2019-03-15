@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 from logging import getLogger, DEBUG, INFO, ERROR, Formatter, StreamHandler, NullHandler
 from argparse import ArgumentParser
 from elasticmetrics import __version__
@@ -93,14 +94,16 @@ def main(args=None):
 
         es_collector = create_es_collector(opts)
         logger.debug('collecting ElasticSearch metrics')
+        output = {}
         if 'cluster_health' in targets:
-            print(es_collector.cluster_health())
+            output['cluster_health'] = es_collector.cluster_health()
         if 'cluster_stats' in targets:
-            print(es_collector.cluster_stats())
+            output['cluster_stats'] = es_collector.cluster_stats()
         if 'cluster_tasks' in targets:
-            print(es_collector.cluster_pending_tasks())
+            output['cluster_tasks'] = es_collector.cluster_pending_tasks()
         if 'node_stats' in targets:
-            print(es_collector.node_stats())
+            output['node_stats'] = es_collector.node_stats()
+        print(json.dumps(output, indent=4))
         return EX_OK
     except KeyboardInterrupt:
         return EX_TEMPFAIL
