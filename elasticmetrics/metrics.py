@@ -55,6 +55,10 @@ def node_performance_metrics(node_stats):
     if jvm_stats:
         metrics['jvm'] = _get_node_jvm_metrics(jvm_stats)
 
+    # transport metrics: inter node send/reads
+    if 'transport' in node_data:
+        metrics['transport'] = node_data['transport']
+
     return metrics
 
 
