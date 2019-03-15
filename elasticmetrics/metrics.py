@@ -114,12 +114,11 @@ def _get_node_jvm_metrics(jvm_stats):
             buf_total_count += buffer_stats['count']
             buf_total_used += buffer_stats['used_in_bytes']
             buf_total_cap += buffer_stats['total_capacity_in_bytes']
-        if 'count' not in jvm_metrics['buffer_pools']:
-            jvm_metrics['buffer_pools']['count'] = buf_total_count
-        if 'used_in_bytes' not in jvm_metrics['buffer_pools']:
-            jvm_metrics['buffer_pools']['used_in_bytes'] = buf_total_used
-        if 'total_capacity_in_bytes' not in jvm_metrics['buffer_pools']:
-            jvm_metrics['buffer_pools']['total_capacity_in_bytes'] = buf_total_cap
+        jvm_metrics['buffer_pools']['total'] = {
+            'count': buf_total_count,
+            'used_in_bytes': buf_total_used,
+            'total_capacity_in_bytes': buf_total_cap,
+        }
 
     return jvm_metrics
 

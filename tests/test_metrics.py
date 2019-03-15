@@ -115,7 +115,7 @@ class TestNodePerformanceMetrics(BaseTestCase):
         self.assertEqual(gc_metrics['collectors']['old']['collection_time_in_millis'], 108)
         self.assertEqual(gc_metrics['collectors']['young']['collection_count'], 3266)
         self.assertEqual(gc_metrics['collectors']['young']['collection_time_in_millis'], 114463)
-        # accumulated metrics
+        # aggregated metrics
         self.assertEqual(gc_metrics['collection_count'], 3266 + 2)
         self.assertEqual(gc_metrics['collection_time_in_millis'], 114463 + 108)
 
@@ -136,6 +136,6 @@ class TestNodePerformanceMetrics(BaseTestCase):
         self.assertEqual(buf_metrics['direct']['used_in_bytes'], 540041224)
         self.assertEqual(buf_metrics['mapped']['count'], 1)
         self.assertEqual(buf_metrics['mapped']['used_in_bytes'], 5403)
-        # accumulated metrics
-        self.assertEqual(buf_metrics['count'], 86 + 1)
-        self.assertEqual(buf_metrics['used_in_bytes'], 540041224 + 5403)
+        # aggregated metrics
+        self.assertEqual(buf_metrics['total']['count'], 86 + 1)
+        self.assertEqual(buf_metrics['total']['used_in_bytes'], 540041224 + 5403)
