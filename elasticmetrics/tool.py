@@ -55,7 +55,7 @@ def parse_args(args=None):
     parser.add_argument(
         '--collect',
         default='cluster_health,node_stats',
-        help='comma separated list of targets'
+        help='comma separated list of targets '
         'to collect: {}. Default is cluster_health,node_stats'.format(
             ','.join(COLLECT_TARGETS))),
     parser.add_argument('--version', action='version', version=__version__)

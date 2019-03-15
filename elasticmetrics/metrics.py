@@ -9,7 +9,7 @@ STATUS_CODES = {
 
 
 def cluster_health_metrics(health_stats):
-    """From clustr health stats structure, returns a dictionary of cluster metrics.
+    """From cluster health stats structure, returns a dictionary of cluster metrics.
 
     :param dict health_stats: dict of cluster info as returned from _cluster/health API
     :return dict: selection of cluster metrics (numeric values)
@@ -79,6 +79,12 @@ def _get_node_fs_metrics(fs_stats):
 
 
 def _get_node_process_metrics(proc_stats):
+    """Return process metrics from the process stats dict, which
+    is the "process" key in the response from the node stats API.
+
+    :param dict proc_stats: the "process" key from node stats API response
+    :return: dict
+    """
     return _available_keys(
                 proc_stats,
                 ('cpu', 'mem', 'max_file_descriptors', 'open_file_descriptors')
@@ -86,6 +92,15 @@ def _get_node_process_metrics(proc_stats):
 
 
 def _get_node_jvm_metrics(jvm_stats):
+    """Return JVM related metrics from the JVM stats dict, which
+    is the "jvm" key in the response from the node stats API
+    Some keys may be added to the returning dict (for example aggregated metrics):
+     - buffer_pool.total: aggregate buffer pool metrics for different pools
+     - gc.collection_*: aggregate metrics from different gc subsections
+
+    :param dict jvm_stats: the "jvm" key from node stats API response
+    :return: dict
+    """
     jvm_metrics = {}
     metric_section_keys = {
         'mem': ('heap_committed_in_bytes', 'heap_used_in_bytes', 'heap_used_percent',
