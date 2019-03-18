@@ -1,0 +1,32 @@
+language: python
+
+# our Tox config has multiple environments, to avoid running all the envs
+# for each Travis env, use a Travis matrix and set the target Tox env explicitly
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.4
+      env: TOXENV=py3
+    - python: 3.5
+      env: TOXENV=py3
+    - python: 3.6
+      env: TOXENV=py3
+    - python: 3.7-dev
+      env: TOXENV=py3
+
+install:
+  - "pip install wheel tox"
+  - "pip install -r requirements/dev.txt"
+
+script:
+  - "tox"
+  - "python setup.py bdist_wheel -d dist"
+
+after_success:
+  - "pip install dist/*.whl"
+  - "python -c 'import elasticmetrics'"
+  - "python -m elasticmetrics.tool --help"
+
+notifications:
+  email: false
