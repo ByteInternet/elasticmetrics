@@ -55,6 +55,19 @@ def node_performance_metrics(node_stats):
     if jvm_stats:
         metrics['jvm'] = _get_node_jvm_metrics(jvm_stats)
 
+    # transport metrics: inter node send/reads
+    if 'transport' in node_data:
+        metrics['transport'] = node_data['transport']
+
+    # thread_pool metrics
+    if 'thread_pool' in node_data:
+        metrics['thread_pool'] = node_data['thread_pool']
+
+    # indices metrics
+    indices_stats = node_data.get('indices')
+    if indices_stats:
+        metrics['indices'] = _get_node_indices_metrics(indices_stats)
+
     return metrics
 
 
@@ -136,6 +149,34 @@ def _get_node_jvm_metrics(jvm_stats):
         }
 
     return jvm_metrics
+
+
+def _get_node_indices_metrics(indices_stats):
+    """Return metrics from indices stats from the node, which is the "indices" key
+    in the response from the node stats API.
+
+    :param dict indics_stats: the "indices" key from node stats API response
+    :return: dict
+    """
+    indices_metrics = {}
+    metric_section_keys = {
+        'docs': ('count', 'deleted'),
+        'fielddata': ('evictions', 'memory_size_in_bytes'),
+        'query_cache': ('evictions', 'hit_count', 'miss_count', 'memory_size_in_bytes'),
+        'request_cache': ('evictions', 'hit_count', 'miss_count', 'memory_size_in_bytes'),
+        'search': ('fetch_current', 'query_current', 'scroll_current', 'suggest_current'),
+        'segments': ('count', 'memory_in_bytes', 'index_writer_memory_in_bytes',
+                     'fixed_bit_set_memory_in_bytes', 'doc_values_memory_in_bytes', 'version_map_memory_in_bytes'),
+        'store': ('size_in_bytes',),
+        'translog': ('operations', 'size_in_bytes', 'uncommitted_operations', 'uncommitted_size_in_bytes'),
+        'warmer': ('current', 'total'),
+    }
+
+    for section, section_keys in metric_section_keys.items():
+        if section in indices_stats:
+            indices_metrics[section] = _available_keys(indices_stats[section], section_keys)
+
+    return indices_metrics
 
 
 def _available_keys(dict_, keys):
