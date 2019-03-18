@@ -59,6 +59,10 @@ def node_performance_metrics(node_stats):
     if 'transport' in node_data:
         metrics['transport'] = node_data['transport']
 
+    # thread_pool metrics
+    if 'thread_pool' in node_data:
+        metrics['thread_pool'] = node_data['thread_pool']
+
     return metrics
 
 

@@ -147,3 +147,7 @@ class TestNodePerformanceMetrics(BaseTestCase):
         self.assertEqual(metrics['transport']['rx_size_in_bytes'], 76369739396)
         self.assertEqual(metrics['transport']['tx_count'], 3351172)
         self.assertEqual(metrics['transport']['tx_size_in_bytes'], 14846089376)
+
+    def test_node_performance_metrics_returns_thread_pool_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertEqual(metrics['thread_pool'], MOCK_NODE_STATS['nodes']['abcd12345node']['thread_pool'])
