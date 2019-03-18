@@ -151,3 +151,77 @@ class TestNodePerformanceMetrics(BaseTestCase):
     def test_node_performance_metrics_returns_thread_pool_metrics(self):
         metrics = node_performance_metrics(MOCK_NODE_STATS)
         self.assertEqual(metrics['thread_pool'], MOCK_NODE_STATS['nodes']['abcd12345node']['thread_pool'])
+
+    def test_node_performance_metrics_returns_indices_docs_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['docs'], dict)
+        sub_metrics = metrics['indices']['docs']
+        self.assertEqual(sub_metrics['count'], 0)
+        self.assertEqual(sub_metrics['deleted'], 0)
+
+    def test_node_performance_metrics_returns_indices_fielddata_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['fielddata'], dict)
+        sub_metrics = metrics['indices']['fielddata']
+        self.assertEqual(sub_metrics['evictions'], 0)
+        self.assertEqual(sub_metrics['memory_size_in_bytes'], 0)
+
+    def test_node_performance_metrics_returns_indices_query_cache_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['query_cache'], dict)
+        sub_metrics = metrics['indices']['query_cache']
+        self.assertEqual(sub_metrics['evictions'], 0)
+        self.assertEqual(sub_metrics['hit_count'], 0)
+        self.assertEqual(sub_metrics['miss_count'], 0)
+        self.assertEqual(sub_metrics['memory_size_in_bytes'], 0)
+
+    def test_node_performance_metrics_returns_indices_request_cache_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['request_cache'], dict)
+        sub_metrics = metrics['indices']['request_cache']
+        self.assertEqual(sub_metrics['evictions'], 0)
+        self.assertEqual(sub_metrics['hit_count'], 0)
+        self.assertEqual(sub_metrics['miss_count'], 0)
+        self.assertEqual(sub_metrics['memory_size_in_bytes'], 0)
+
+    def test_node_performance_metrics_returns_indices_search_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['search'], dict)
+        sub_metrics = metrics['indices']['search']
+        self.assertEqual(sub_metrics['fetch_current'], 0)
+        self.assertEqual(sub_metrics['query_current'], 0)
+        self.assertEqual(sub_metrics['scroll_current'], 0)
+        self.assertEqual(sub_metrics['suggest_current'], 0)
+
+    def test_node_performance_metrics_returns_indices_segments_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['segments'], dict)
+        sub_metrics = metrics['indices']['segments']
+        self.assertEqual(sub_metrics['count'], 0)
+        self.assertEqual(sub_metrics['doc_values_memory_in_bytes'], 0)
+        self.assertEqual(sub_metrics['fixed_bit_set_memory_in_bytes'], 0)
+        self.assertEqual(sub_metrics['index_writer_memory_in_bytes'], 0)
+        self.assertEqual(sub_metrics['memory_in_bytes'], 0)
+        self.assertEqual(sub_metrics['version_map_memory_in_bytes'], 0)
+
+    def test_node_performance_metrics_returns_indices_store_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['store'], dict)
+        sub_metrics = metrics['indices']['store']
+        self.assertEqual(sub_metrics['size_in_bytes'], 0)
+
+    def test_node_performance_metrics_returns_indices_translog_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['translog'], dict)
+        sub_metrics = metrics['indices']['translog']
+        self.assertEqual(sub_metrics['operations'], 0)
+        self.assertEqual(sub_metrics['size_in_bytes'], 0)
+        self.assertEqual(sub_metrics['uncommitted_operations'], 0)
+        self.assertEqual(sub_metrics['uncommitted_size_in_bytes'], 0)
+
+    def test_node_performance_metrics_returns_indices_warmer_metrics(self):
+        metrics = node_performance_metrics(MOCK_NODE_STATS)
+        self.assertIsInstance(metrics['indices']['warmer'], dict)
+        sub_metrics = metrics['indices']['warmer']
+        self.assertEqual(sub_metrics['current'], 0)
+        self.assertEqual(sub_metrics['total'], 0)
