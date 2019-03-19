@@ -1,6 +1,8 @@
 import os
 import json
-from elasticmetrics.formatters import flatten_metrics
+from collections import OrderedDict
+from mock import call
+from elasticmetrics.formatters import flatten_metrics, sort_flatten_metrics_iter
 from . import BaseTestCase, FIXTURES_PATH
 
 
@@ -59,3 +61,49 @@ class TestFlattenMetrics(BaseTestCase):
         for key, value in expected_metrics.items():
             self.assertIn(key, flattened)
             self.assertEqual(flattened[key], value)
+
+
+class TestSortFlattenMetricsIter(BaseTestCase):
+    def test_sort_flatten_metrics_iter_calls_flatten_metrics_on_all_metrics(self):
+        mock_flatten = self.set_up_patch('elasticmetrics.formatters.flatten_metrics')
+        mock_flatten.return_value = {
+            'http.total_opened': 10,
+            'http.current_open': 1,
+        }
+
+        sort_flatten_metrics_iter([MOCK_NODE_METRICS, MOCK_NODE_METRICS])
+        mock_flatten.assert_has_calls([
+            call(MOCK_NODE_METRICS, '.', ''),
+            call(MOCK_NODE_METRICS, '.', '')
+        ])
+
+    def test_sort_flatten_metrics_iter_calls_flatten_metrics_on_metrics_with_separator_and_prefix(self):
+        mock_flatten = self.set_up_patch('elasticmetrics.formatters.flatten_metrics')
+        mock_flatten.return_value = {
+            'http.total_opened': 10,
+            'http.current_open': 1,
+        }
+
+        sort_flatten_metrics_iter([MOCK_NODE_METRICS], '->', 'mynode')
+        mock_flatten.assert_called_once_with(MOCK_NODE_METRICS, '->', 'mynode')
+
+    def test_sort_flatten_metrics_iter_returns_sorted_ordered_dict(self):
+        metrics1 = {
+            'fs': {'total': 200},
+            'process': {'cpu': {'percent': 2}},
+        }
+        metrics2 = {
+            'threads': {'count': 3},
+            'http': {'total_opened': 70},
+            'buffer_pools': {'direct': {'count': 41}},
+        }
+        expected = OrderedDict()
+        expected['buffer_pools.direct.count'] = 41
+        expected['fs.total'] = 200
+        expected['http.total_opened'] = 70
+        expected['process.cpu.percent'] = 2
+        expected['threads.count'] = 3
+
+        result = sort_flatten_metrics_iter((metrics1, metrics2))
+        self.assertIsInstance(result, OrderedDict)
+        self.assertEqual(result, expected)
