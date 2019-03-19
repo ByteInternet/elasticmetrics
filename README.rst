@@ -2,6 +2,11 @@
 Elastic Metrics
 ***************
 
+
+.. image:: https://travis-ci.org/ByteInternet/elasticmetrics.svg?branch=master
+    :target: https://travis-ci.org/ByteInternet/elasticmetrics
+
+
 Collect performance metrics from ElasticSearch.
 
 `elasticmetrics` is a Python library, designed to be used in different contexts and easy
