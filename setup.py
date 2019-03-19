@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 from elasticmetrics import __version__
 
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
