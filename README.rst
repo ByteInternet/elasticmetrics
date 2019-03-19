@@ -58,7 +58,8 @@ Features from different modules can be composed together to achieve expected beh
 .. code-block:: python
 
     from elasticmetrics.collectors import ElasticSearchCollector
-    from elasticmetrics.metrics import flatten_metrics
+    from elasticmetrics.metrics import node_performance_metrics
+    from elasticmetrics.formatters import flatten_metrics
 
     collector = ElasticSearchCollector(
                     'es.example.org',
@@ -67,7 +68,7 @@ Features from different modules can be composed together to achieve expected beh
                     password='testpassword'
                 )
     metrics_as_dotted_paths = flatten_metrics(
-        collect.node_stats()
+        node_performance_metrics(collector.node_stats()),
         prefix='example_es_server'
     )
     # metrics_as_dotted_paths can be pushed to a time series backend, like Graphite
