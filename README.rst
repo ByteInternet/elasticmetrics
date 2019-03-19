@@ -77,7 +77,7 @@ Installation
     $ pip install elasticmetrics
 
 
-The only dependencies are Python 2.7+ and setuptools.
+The only dependencies are Python 2.7+/3.4+ and setuptools.
 
 However on development (and test) environment
 `pytest <https://pypi.org/project/pytest/>`_, `mock <https://pypi.org/project/mock>`_
