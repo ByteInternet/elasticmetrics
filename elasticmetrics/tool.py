@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from elasticmetrics import __version__
 from elasticmetrics.collectors import ElasticSearchCollector
 from elasticmetrics.metrics import cluster_health_metrics, node_performance_metrics
+from elasticmetrics.formatters import sort_flatten_metrics_iter
 
 EX_OK = getattr(os, 'EX_OK', 0)
 EX_DATAERR = getattr(os, 'EX_DATAERR', 65)
@@ -42,10 +43,6 @@ def parse_args(args=None):
         '--insecure',
         action='store_true',
         help='perform insecure SSL connections, skip certificate verification')
-    parser.add_argument(
-        '--raw-stats',
-        action='store_true',
-        help='output raw stats as returned from Elastic APIs'),
     parser.add_argument('--verbose', action='store_true', help='more output'),
     parser.add_argument(
         '--quiet',
@@ -59,6 +56,18 @@ def parse_args(args=None):
         'to collect: {}. Default is cluster_health,node_stats'.format(
             ','.join(COLLECT_TARGETS))),
     parser.add_argument('--version', action='version', version=__version__)
+    formatter_group = parser.add_mutually_exclusive_group()
+    formatter_group.add_argument(
+        '--raw-stats',
+        action='store_true',
+        help='output raw stats as returned from Elastic APIs'),
+    formatter_group.add_argument(
+        '--dotted-paths',
+        action='store_true',
+        help='output metrics named as dotted paths mapped to values'),
+    parser.add_argument(
+        '--node-alias',
+        help='alias for the node. Used as prefix for metrics paths')
     return parser.parse_args(args)
 
 
@@ -123,13 +132,32 @@ def main(args=None):
 
         collector = create_es_collector(opts)
         logger.debug('collecting ElasticSearch metrics')
+        path_prefix = opts.node_alias or ''
         if 'cluster_health' in targets:
-            output['cluster_health'] = collector.cluster_health() if opts.raw_stats else \
-                                        cluster_health_metrics(collector.cluster_health())
+            output['cluster_health'] = collector.cluster_health(
+            ) if opts.raw_stats else cluster_health_metrics(
+                collector.cluster_health())
         if 'node_stats' in targets:
-            output['node_stats'] = collector.node_stats() if opts.raw_stats else \
-                                    node_performance_metrics(collector.node_stats())
-        print(json.dumps(output, indent=4))
+            output['node_stats'] = collector.node_stats(
+            ) if opts.raw_stats else node_performance_metrics(
+                collector.node_stats())
+
+        if opts.dotted_paths:
+            cluster_output = sort_flatten_metrics_iter(
+                [output.get('cluster_health', {})
+                 ],  # open to add other cluster related metrics
+                prefix='cluster')
+            node_output = sort_flatten_metrics_iter(
+                [output.get('node_stats', {})
+                 ],  # open to add other node related metrics
+                prefix=path_prefix)
+            output = cluster_output
+            output.update(node_output)
+            for metric_path, value in output.items():
+                print('{} {}'.format(metric_path, value))
+        else:
+            print(json.dumps(output, indent=4))
+
         return EX_OK
     except KeyboardInterrupt:
         return EX_TEMPFAIL
