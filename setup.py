@@ -29,8 +29,8 @@ classifiers = [
 ]
 
 long_description = __doc__
-with open(os.path.join(os.path.dirname(__file__), "README.rst")) as fh:
-    long_description = fh.read()
+with open(os.path.join(os.path.dirname(__file__), "README.rst"), 'rb') as fh:
+    long_description = fh.read().decode('utf-8', errors='ignore')
 
 setup_params = dict(
     name="elasticmetrics",
