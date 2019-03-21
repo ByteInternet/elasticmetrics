@@ -46,7 +46,7 @@ Collectors
                              )
 
 
-The returned values are exactly what's returned from the Elasitc APIs.
+The returned values are exactly what's returned from the Elastic APIs.
 
 
 Composing Features
