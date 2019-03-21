@@ -1,3 +1,11 @@
+elasticmetrics (20190321.164308) xenial; urgency=medium
+
+  * Fix typo in README
+  * Update setup.py to read README in UTF-8 and ignore decoding errors
+  * add build-deb.sh shell script to build Debian package
+
+ -- Farzad Ghanei <farzad.ghanei@byte.nl>  Thu, 21 Mar 2019 16:43:09 +0100
+
 elasticmetrics (20190314.170559) unstable; urgency=medium
 
   [ Rick van de Loo ]
