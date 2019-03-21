@@ -1,0 +1,7 @@
+elasticmetrics (20190314.170559) unstable; urgency=medium
+
+  [ Rick van de Loo ]
+  * Add debian packaging
+
+ -- Rick <rick@byte.nl>  Thu, 14 Mar 2019 17:06:09 +0200
+
